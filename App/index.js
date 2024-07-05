@@ -1,53 +1,106 @@
-import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+// Filename: index.js
+// Combined code from all files
+
+import React from 'react';
+import { SafeAreaView, StyleSheet, View, Text, FlatList, TouchableOpacity, ScrollView } from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
+
+const Stack = createStackNavigator();
 
 const App = () => {
-  const fullText = 'Hi, this is Apply.\nCreating mobile apps is now as simple as typing text.\nJust input your idea and press APPLY, and our platform does the rest...';
-  const [displayedText, setDisplayedText] = useState('');
-  const [index, setIndex] = useState(0);
-  const [isPaused, setIsPaused] = useState(false);
-
-  useEffect(() => {
-    if (isPaused) return;
-
-    const interval = setInterval(() => {
-      setDisplayedText((prev) => prev + fullText[index]);
-      setIndex((prev) => {
-        if (prev === fullText.length - 1) {
-          setIsPaused(true);
-          setTimeout(() => {
-            setDisplayedText('');
-            setIndex(0);
-            setIsPaused(false);
-          }, 2000);
-          return 0;
-        }
-        return prev + 1;
-      });
-    }, 100);
-
-    return () => clearInterval(interval);
-  }, [index, isPaused]);
-
-  return (
-    <View style={styles.container}>
-      <Text style={styles.text}>{displayedText}</Text>
-    </View>
-  );
+    return (
+        <NavigationContainer>
+            <SafeAreaView style={stylesApp.container}>
+                <Stack.Navigator initialRouteName="Home">
+                    <Stack.Screen name="Home" component={HomeScreen} />
+                    <Stack.Screen name="Story" component={StoryScreen} />
+                </Stack.Navigator>
+            </SafeAreaView>
+        </NavigationContainer>
+    );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    backgroundColor: 'black',
-    padding: 20,
-  },
-  text: {
-    color: 'white',
-    fontSize: 24,
-    fontFamily: 'monospace',
-  },
+const stylesApp = StyleSheet.create({
+    container: {
+        flex: 1,
+        marginTop: 10,
+    },
+});
+
+const stories = [
+    { id: '1', title: 'Cinderella', content: 'Once upon a time...' },
+    { id: '2', title: 'Snow White', content: 'A long time ago...' },
+    { id: '3', title: 'Little Red Riding Hood', content: 'In a small village...' },
+];
+
+const HomeScreen = ({ navigation }) => {
+    const renderItem = ({ item }) => (
+        <TouchableOpacity onPress={() => navigation.navigate('Story', { story: item })}>
+            <View style={stylesHomeScreen.storyItemBox}>
+                <Text style={stylesHomeScreen.storyItem}>{item.title}</Text>
+            </View>
+        </TouchableOpacity>
+    );
+
+    return (
+        <View style={stylesHomeScreen.container}>
+            <Text style={stylesHomeScreen.header}>Fairy Tale List</Text>
+            <FlatList
+                data={stories}
+                renderItem={renderItem}
+                keyExtractor={item => item.id}
+            />
+        </View>
+    )
+};
+
+const stylesHomeScreen = StyleSheet.create({
+    container: {
+        flex: 1,
+        padding: 16,
+    },
+    header: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        marginBottom: 16,
+    },
+    storyItemBox: {
+        marginBottom: 10,
+        padding: 14,
+        backgroundColor: '#E0FFFF',
+        borderRadius: 5,
+    },
+    storyItem: {
+        fontSize: 18,
+    }
+});
+
+const StoryScreen = ({ route }) => {
+    const { story } = route.params;
+
+    return (
+        <ScrollView contentContainerStyle={stylesStoryScreen.container}>
+            <Text style={stylesStoryScreen.title}>{story.title}</Text>
+            <Text style={stylesStoryScreen.content}>{story.content}</Text>
+        </ScrollView>
+    );
+};
+
+const stylesStoryScreen = StyleSheet.create({
+    container: {
+        flex: 1,
+        padding: 16,
+    },
+    title: {
+        fontSize: 28,
+        fontWeight: 'bold',
+        marginBottom: 16,
+    },
+    content: {
+        fontSize: 18,
+        lineHeight: 26,
+    }
 });
 
 export default App;
